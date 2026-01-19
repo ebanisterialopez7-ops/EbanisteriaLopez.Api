@@ -2,32 +2,32 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copiar csproj y restaurar dependencias
-COPY *.sln .
+# Copiar solo el proyecto API (evita referencias a proyectos inexistentes)
 COPY EbanisteriaLopez.Api/*.csproj ./EbanisteriaLopez.Api/
-COPY EbanisteriaLopez.Shared/*.csproj ./EbanisteriaLopez.Shared/
-RUN dotnet restore
 
-# Copiar el resto del código
+# Restaurar dependencias usando el csproj concreto
+RUN dotnet restore EbanisteriaLopez.Api/EbanisteriaLopez.Api.csproj
+
+# Copiar el código fuente del proyecto
 COPY EbanisteriaLopez.Api/. ./EbanisteriaLopez.Api/
-COPY EbanisteriaLopez.Shared/. ./EbanisteriaLopez.Shared/
 
 WORKDIR /src/EbanisteriaLopez.Api
 
-# Compilar en modo Release
+# Publicar la aplicación en modo Release
 RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 # Etapa 2: runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+
+# Copiar los archivos publicados desde la etapa de build
 COPY --from=build /app/publish .
 
-# Puerto que expone la API
-EXPOSE 5000
-
-# Variable opcional para el entorno
+# Exponer el puerto estándar en contenedores y configurar la URL de escucha
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-# Ejecutar la app
+# Comando de inicio
 ENTRYPOINT ["dotnet", "EbanisteriaLopez.Api.dll"]
