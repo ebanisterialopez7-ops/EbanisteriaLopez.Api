@@ -27,30 +27,42 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// =====================
+// Registrar servicios de Autenticación y Autorización
+// =====================
+builder.Services.AddAuthorization(); // <- obligatorio si usas UseAuthorization
+// Si no vas a usar autenticación, puedes comentar lo siguiente:
+// builder.Services.AddAuthentication("Bearer")
+//     .AddJwtBearer("Bearer", options =>
+//     {
+//         options.Authority = "https://tu-servidor-de-auth";
+//         options.Audience = "ebanisteria-api";
+//     });
+
 var app = builder.Build();
 
 // =====================
 // Middleware
 // =====================
-
-// Solo habilitamos HTTPS redirection si se requiere, pero Swagger funciona mejor con HTTP/HTTPS directo
 app.UseHttpsRedirection();
 
-// Swagger siempre visible en la raíz
+// Swagger
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "EbanisteriaLopez API V1");
-    c.RoutePrefix = string.Empty; // Hace que Swagger esté en: https://localhost:<puerto>/
+    c.RoutePrefix = string.Empty;
 });
 
-// Autorización (si no hay JWT/Identity, no afecta)
-app.UseAuthorization();
+// Si agregas autenticación
+// app.UseAuthentication(); // debe ir antes de UseAuthorization
+
+app.UseAuthorization(); // requiere AddAuthorization()
 
 // Mapear controladores
 app.MapControllers();
 
-// Endpoint de prueba opcional
+// Endpoint de prueba
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
 app.Run();

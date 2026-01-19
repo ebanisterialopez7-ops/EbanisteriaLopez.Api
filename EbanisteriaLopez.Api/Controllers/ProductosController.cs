@@ -24,6 +24,7 @@ public class ProductosController : ControllerBase
             .Include(p => p.Categoria)
             .Include(p => p.EstadoProducto)
             .Include(p => p.Detalle)
+            .Include(p => p.Imagenes) // <-- Se agregan las imágenes
             .ToListAsync();
     }
 
@@ -35,6 +36,7 @@ public class ProductosController : ControllerBase
             .Include(p => p.Categoria)
             .Include(p => p.EstadoProducto)
             .Include(p => p.Detalle)
+            .Include(p => p.Imagenes) // <-- Se agregan las imágenes
             .FirstOrDefaultAsync(p => p.ProductoId == id);
 
         if (producto == null) return NotFound();

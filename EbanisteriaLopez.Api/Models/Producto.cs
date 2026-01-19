@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.Collections.Generic; // <-- necesario para List<>
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EbanisteriaLopez.Api.Models;
@@ -29,4 +31,9 @@ public class Producto
     public Categoria? Categoria { get; set; }
     public EstadoProducto? EstadoProducto { get; set; }
     public ProductoDetalle? Detalle { get; set; }
+
+    // =====================
+    // Relación 1 a muchos con ImagenProducto
+    // =====================
+    public List<ImagenProducto> Imagenes { get; set; } = new();
 }
